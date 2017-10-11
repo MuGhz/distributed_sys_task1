@@ -13,8 +13,14 @@ def get_quorum():
 	quorum = []
 	for user in response :
 		quorum.append(user['ip'])
-		ping = json.loads(requests.get('').text)
-	print (quorum)
+	n = 0
+	for ip in quorum :
+		ip += '/ewallet/ping'
+		ping = json.loads(requests.post(ip).text)
+		if ping['pong'] == 1 :
+			n += 1
+	vote = n/len(quorum) * 100
+	return (vote)
 get_quorum()
 
 @app.before_request
