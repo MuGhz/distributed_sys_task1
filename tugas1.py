@@ -10,7 +10,11 @@ database = SqliteDatabase('bank.db')
 def get_quorum():
 	#response = json.loads(requests.get('http://152.118.31.2/list.php').text)
 	response = json.loads(requests.get('http://www.mocky.io/v2/59ddd7201000003e0ba84e8b').text)
-	print (response)
+	quorum = []
+	for user in response :
+		quorum.append(user['ip'])
+		ping = json.loads(requests.get('').text)
+	print (quorum)
 get_quorum()
 
 @app.before_request
