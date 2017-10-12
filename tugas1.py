@@ -75,7 +75,7 @@ def register():
 def getSaldo():
 	vote = get_quorum()
 	if vote < 50 :
-		return jsonify(status_register=-2),200
+		return jsonify(nilai_saldo=-2),200
 	else :
 		try :
 			user_id = json.loads(request.data.decode("utf-8"))['user_id']
