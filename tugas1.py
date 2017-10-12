@@ -2,35 +2,41 @@ from flask import Flask,request,jsonify
 from peewee import *
 from models import *
 import requests
-import json
+import json,sys
 
 app = Flask(__name__)
 database = SqliteDatabase('bank.db')
 
 def get_quorum():
-	#response = json.loads(requests.get('http://152.118.31.2/list.php').text)
 	try :
+		#response = json.loads(requests.get('http://152.118.31.2/list.php').text)
 		response = json.loads(requests.get('http://www.mocky.io/v2/59ddd7201000003e0ba84e8b').text)
 	except Exception as e:
 		print (e)
 	quorum = []
 	for user in response :
 		quorum.append(user['ip'])
+	print (quorum)
 	n = 0
 	for ip in quorum :
 		ip = 'http://'+ ip + '/ewallet/ping'
-		print (ip)
 		ping = {}
+		flag = True
 		try :
-			ping = json.loads(requests.post(ip).text)
+			print ('ping....',ip)
+			ping = json.loads(requests.post(ip,timeout=5).text)
 		except Exception as e:
+			flag = False
 			print (e)
-		try :
-			if ping['pong'] == 1 :
-				n += 1
-		except KeyError as k :
-			print (k)
+		if flag :
+			try :
+				if ping['pong'] == 1 :
+					n += 1
+					print ('pong.....')
+			except (Exception,KeyError) as e :
+				print ('ping not success in ',ip,' error :',e)
 	vote = (n/(len(quorum))) * 100
+	print ('hasil quorum :',vote)
 	return vote
 
 @app.before_request
@@ -59,10 +65,10 @@ def register():
 			print (e)
 			return jsonify(status_register=-99),200
 		try :
-			nasabah, created = Nasabah.get_or_create(name=nama,npm=user_id)
+			Nasabah.create(name=nama,npm=user_id)
 		except Exception as e:
 			print (e)
-			return jsonify(status_register=4),200
+			return jsonify(status_register=-4),200
 		return jsonify(status_register=1),200
 
 @app.route('/ewallet/getSaldo',methods=['POST'])
@@ -75,6 +81,7 @@ def getSaldo():
 			user_id = json.loads(request.data.decode("utf-8"))['user_id']
 		except Exception as e:
 			print (e)
+			print ("error : ",sys.exc_info())
 			return jsonify(nilai_saldo=-99),200
 		try : 
 			nasabah = Nasabah.get(npm=user_id)
