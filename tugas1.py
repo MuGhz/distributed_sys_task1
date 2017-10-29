@@ -95,5 +95,36 @@ def getSaldo():
 			return jsonify(nilai_saldo=-4),200
 		return jsonify(nilai_saldo=saldo),200
 
+@app.route('/ewallet/transfer',methods=['POST'])
+def transfer():
+	vote = get_quorum()
+	if vote < 50 :
+		return jsonify(status_transfer=-2),200
+	else :
+		 try :
+                        user_id = json.loads(request.data.decode("utf-8"))['user_id']
+                except Exception as e:
+                        print ("error : ",sys.exc_info())
+                        return jsonify(status_transfer=-99),200
+                try :
+                        nasabah = Nasabah.get(npm=user_id)
+                except Exception as e:
+                        print (e)
+                        return jsonify(status_transfer=-1),200
+		try :
+			nominal = json.loads(request.data.decode("utf-8"))["nilai"]
+		except Exception as e:
+			print (e)
+			return jsonify(status_transfer=-99),200
+		if nominal < 0 or nominal > 1000000000 :
+			return jsonify(status_transfer=-5),200
+		try :
+			nasabah.saldo += nominal
+			nasabh.save()
+			return jsonify(status_transfer=1),200
+		except Exception as e:
+			print (e)
+			return jsonify(status_transfer=-4),200
+
 if __name__ == '__main__':
     app.run(threaded=True,port=80,host='0.0.0.0')
