@@ -66,4 +66,11 @@ class Interface(cmd.Cmd) :
 		return True
 
 if __name__ == '__main__':
+	print ('<<<<<<<<<<<<<<<<<<<<E-WALLET>>>>>>>>>>>>>>>>>>>>')
+	print ('================================================')
+	print ('PETUNJUK :')
+	print ('untuk registrasi = register <IP> <NAMA> <USER_ID>')
+	print ('untuk cek saldo = saldo <IP> <USER_ID>')
+	print ('untuk ping = ping <IP>')
+	print ('================================================')
 	Interface().cmdloop()

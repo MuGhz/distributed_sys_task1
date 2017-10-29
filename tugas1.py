@@ -10,7 +10,7 @@ database = SqliteDatabase('bank.db')
 def get_quorum():
 	try :
 		#response = json.loads(requests.get('http://152.118.31.2/list.php').text)
-		response = json.loads(requests.get('http://www.mocky.io/v2/59ddd7201000003e0ba84e8b').text)
+		response = json.loads(requests.get('http://www.mocky.io/v2/59df65fa0f00001009173c3f').text)
 	except Exception as e:
 		print (e)
 	quorum = []
