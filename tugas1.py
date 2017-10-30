@@ -122,7 +122,7 @@ def transfer():
 			return jsonify(status_transfer=-5),200
 		try :
 			nasabah.saldo += nominal
-			nasabh.save()
+			nasabah.save()
 			return jsonify(status_transfer=1),200
 		except Exception as e:
 			print (e)
@@ -142,30 +142,30 @@ def get_cabang():
 	return cabang
 
 def cek_cabang(id):
-        cabang = get_cabang()
-        if cabang[id] is hostname:
-                return 1
-        else :
-                return 0
+	cabang = get_cabang()
+	print ("cabang :",cabang[id]," hostname :",hostname)
+	if cabang[id] == hostname:
+		print ("status domisili = 1")
+		return 1
+	else :
+		print ("status domisili = 0")
+		return 0
 
 @app.route('/ewallet/getTotalSaldo',methods=['POST'])
 def getTotalSaldo():
 	vote = get_quorum()
-	if vote is not 100:
+	if vote < 100:
 		return jsonify(nilai_saldo=-2),200
-	else:	
+	else:
 		try :
                         user_id = json.loads(request.data.decode("utf-8"))['user_id']
 		except Exception as e:
                         print ("error : ",sys.exc_info())
                         return jsonify(nilai_saldo=-99),200
-		try :
-                        nasabah = Nasabah.get(npm=user_id)
-		except Exception as e:
-                        print (e)
-                        return jsonify(status_transfer=-1),200
 		cabang = get_cabang()
+		print ("CABANG :",cabang)
 		if cek_cabang(user_id) is 0 :
+			print ("user_id tidak berdomisili di bank ini, request total saldo dari cabang domisili ",cabang[user_id])
 			request_total = 'http://' + cabang[user_id] + '/ewallet/getTotalSaldo'
 			try :
 				post_data={"user_id":user_id}
@@ -176,9 +176,16 @@ def getTotalSaldo():
 				return jsonify(nilai_saldo=-99),200
 			return jsonify(nilai_saldo=total_saldo['nilai_saldo']),200
 		else :
+			try :
+				nasabah = Nasabah.get(npm=user_id)
+			except Exception as e:
+				print (e)
+				return jsonify(nilai_saldo=-1),200
+			print ("user id berdomisili pada bank ini, memulai request saldo dari bank cabang lain")
 			sum = 0.0
 			for bank in cabang :
-				api = 'http://' + bank['ip'] + '/ewallet/getSaldo'
+				print (cabang[bank])
+				api = 'http://' + cabang[bank] + '/ewallet/getSaldo'
 				post_data = {"user_id":user_id}
 				post_data = json.dumps(post_data)
 				try :
@@ -186,8 +193,12 @@ def getTotalSaldo():
 				except Exception as e: 
 					print (e)
 					return jsonify(nilai_saldo=-3),200
-				if saldo['nilai_saldo'] > 0 :
-					sum += saldo['nilai_saldo']
+				try :
+					if saldo['nilai_saldo'] > 0 :
+						print ("SALDO DARI ", cabang[bank]," SEBESAR ",saldo['nilai_saldo']," BERHASIL DITAMBAHKAN")
+						sum += saldo['nilai_saldo']
+				except (Exception,KeyError) as e :
+					print (e)
 			return jsonify(nilai_saldo=sum),200
 
 if __name__ == '__main__':
