@@ -3,9 +3,19 @@ from peewee import *
 from models import *
 
 database = SqliteDatabase('bank.db')
+def transfer_success(user_id,nominal):
+	database.connect()
+	try :
+		nasabah = Nasabah.get(npm=user_id)
+		nasabah.saldo -= nominal
+		print ("saldo anda : ",nasabah.saldo)
+		nasabah.save()
+	except Exception as e:
+		print (e)
+	database.close()
 
 class Interface(cmd.Cmd) :
-	
+
 	def do_saldo(self, line):
 		arg = line.split(" ")
 		ip = arg[0]
@@ -55,7 +65,7 @@ class Interface(cmd.Cmd) :
 				print ('kesalahan-belum terdefinisi')
 		except KeyError as k :
 			print ('keyerror :',k)
-	
+
 	def do_ping(self,line):
 		ip='http://'+line+'/ewallet/ping'
 		try :
@@ -93,17 +103,6 @@ class Interface(cmd.Cmd) :
 				print ('kesalahan belum terdefinisi')
 		except (Exception,KeyError) as e:
 			print ('error :',e)
-
-	def transfer_success(user_id,nominal):
-		database.connect()
-		try :
-			nasabah = Nasabah.get(npm=user_id)
-			nasabah.saldo -= nominal
-			print ("saldo anda : ",nasabah.saldo)
-			nasabah.save()
-		except Exception as e:
-			print (e)
-		database.close()
 
 	def do_simpan(self,line):
 		arg = line.split(" ")
