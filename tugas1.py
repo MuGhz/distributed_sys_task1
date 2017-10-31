@@ -7,7 +7,7 @@ import json,sys,socket
 app = Flask(__name__)
 database = SqliteDatabase('bank.db')
 hostname = socket.gethostbyname(socket.gethostname())
-headers = {'Content-type': 'application/json'}
+headers = {'Content-type': 'application/json','Accept':'application/json'}
 def get_quorum():
 	try :
 		#response = json.loads(requests.get('http://152.118.31.2/list.php').text)

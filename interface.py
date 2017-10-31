@@ -3,6 +3,7 @@ from peewee import *
 from models import *
 
 database = SqliteDatabase('bank.db')
+headers = {'Content-type': 'application/json','Accept':'application/json'}
 def transfer_success(user_id,nominal):
 	database.connect()
 	try :
@@ -27,7 +28,7 @@ class Interface(cmd.Cmd) :
 		input = json.dumps(input)
 		ip = "http://" + ip + "/ewallet/getSaldo"
 		try :
-			response = json.loads(requests.post(ip, data = input).text)
+			response = json.loads(requests.post(ip, data = input,headers=headers).text)
 			print (response)
 		except Exception as e:
 			print (e)
@@ -57,7 +58,7 @@ class Interface(cmd.Cmd) :
 		input['nama']=nama
 		input=json.dumps(input)
 		try :
-			response = json.loads(requests.post(ip, data = input).text)
+			response = json.loads(requests.post(ip, data = input,headers=headers).text)
 		except Exception as e:
 			print (e)
 		try :
@@ -94,7 +95,7 @@ class Interface(cmd.Cmd) :
 		flag = False
 		try :
 			transfer_success(user_id,nominal)
-			response = json.loads(requests.post(api, data = input).text)
+			response = json.loads(requests.post(api, data = input,headers=headers).text)
 			flag = True
 		except Exception as e:
 			print (e)
@@ -154,7 +155,7 @@ class Interface(cmd.Cmd) :
 		input = {"user_id":user_id}
 		input = json.dumps(input)
 		try :
-			response = json.loads(requests.post(api, data = input).text)
+			response = json.loads(requests.post(api, data = input,headers=headers).text)
 		except Exception as e:
 			print (e)
 		try :
