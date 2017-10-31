@@ -7,7 +7,7 @@ import json,sys,socket
 app = Flask(__name__)
 database = SqliteDatabase('bank.db')
 hostname = socket.gethostbyname(socket.gethostname())
-
+headers = {'Content-type': 'application/json'}
 def get_quorum():
 	try :
 		#response = json.loads(requests.get('http://152.118.31.2/list.php').text)
@@ -25,10 +25,9 @@ def get_quorum():
 		flag = True
 		try :
 			print ('ping....',ip)
-			ping = json.loads(requests.post(ip,timeout=5).text)
+			ping = json.loads(requests.post(ip,timeout=1).text)
 		except Exception as e:
 			flag = False
-			print (e)
 		if flag :
 			try :
 				if ping['pong'] == 1 :
@@ -143,12 +142,9 @@ def get_cabang():
 
 def cek_cabang(id):
 	cabang = get_cabang()
-	print ("cabang :",cabang[id]," hostname :",hostname)
 	if cabang[id] == hostname:
-		print ("status domisili = 1")
 		return 1
 	else :
-		print ("status domisili = 0")
 		return 0
 
 @app.route('/ewallet/getTotalSaldo',methods=['POST'])
@@ -170,7 +166,7 @@ def getTotalSaldo():
 			try :
 				post_data={"user_id":user_id}
 				post_data=json.dumps(post_data)
-				total_saldo = json.loads(requests.post(request_total, data = post_data).text)
+				total_saldo = json.loads(requests.post(request_total, data = post_data,headers=headers).text)
 			except Exception as e:
 				print (e)
 				return jsonify(nilai_saldo=-99),200
@@ -184,14 +180,13 @@ def getTotalSaldo():
 			print ("user id berdomisili pada bank ini, memulai request saldo dari bank cabang lain")
 			sum = 0.0
 			for bank in cabang :
-				print (cabang[bank])
 				api = 'http://' + cabang[bank] + '/ewallet/getSaldo'
 				post_data = {"user_id":user_id}
 				post_data = json.dumps(post_data)
 				try :
-					saldo = json.loads(requests.post(api,data = post_data).text)
+					saldo = json.loads(requests.post(api,data = post_data,headers=headers).text)
 				except Exception as e: 
-					print (e)
+					print ("pemanggilan gagal pada host",cabang[bank])
 					return jsonify(nilai_saldo=-3),200
 				try :
 					if saldo['nilai_saldo'] > 0 :
