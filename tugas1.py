@@ -93,7 +93,7 @@ def getSaldo():
 		except Exception as e:
 			print (e)
 			return jsonify(nilai_saldo=-4),200
-		return jsonify(nilai_saldo=saldo),200
+		return jsonify(nilai_saldo=int(saldo)),200
 
 @app.route('/ewallet/transfer',methods=['POST'])
 def transfer():
@@ -194,7 +194,7 @@ def getTotalSaldo():
 						sum += saldo['nilai_saldo']
 				except (Exception,KeyError) as e :
 					print (e)
-			return jsonify(nilai_saldo=sum),200
+			return jsonify(nilai_saldo=int(sum)),200
 
 if __name__ == '__main__':
     app.run(threaded=True,port=80,host='0.0.0.0')
