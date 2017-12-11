@@ -17,6 +17,16 @@ def transfer_success(user_id,nominal):
 class Interface(cmd.Cmd) :
 	intro = 'Selamat datang di e-wallet cabang 1406559055.\nDaftar perintah : saldo, register, ping, transfer, totalSaldo, simpan, ambil, dan quit.\nUntuk bantuan ketik help atau ? \n'
 	prompt = '(e-wallet)'
+	def do_quorum(self,line):
+		target = "http://172.17.0.36/ewallet/quorum"
+		try :
+			response = json.loads(requests.post(target,headers=headers).text)
+		except Exception as e:
+			print (e)
+		try :
+			print  (response)
+		except Exception as e :
+			print (e)
 
 	def do_saldo(self, line):
 		'untuk mengecek saldo nasabah = saldo <IP> <USER_ID>'
@@ -29,7 +39,6 @@ class Interface(cmd.Cmd) :
 		ip = "http://" + ip + "/ewallet/getSaldo"
 		try :
 			response = json.loads(requests.post(ip, data = input,headers=headers).text)
-			print (response)
 		except Exception as e:
 			print (e)
 		try :
@@ -88,7 +97,7 @@ class Interface(cmd.Cmd) :
 		'untuk melakukan transfer saldo nasabah = transfer <IP> <USER_ID> <NOMINAL>'
 		arg = line.split(" ")
 		api = "http://" + arg[0] + "/ewallet/transfer"
-		user_id = int(arg[1])
+		user_id = arg[1]
 		nominal = int(arg[2])
 		input = {"user_id":user_id,"nilai":nominal}
 		input = json.dumps(input)
@@ -97,6 +106,7 @@ class Interface(cmd.Cmd) :
 			transfer_success(user_id,nominal)
 			response = json.loads(requests.post(api, data = input,headers=headers).text)
 			flag = True
+			print (response)
 		except Exception as e:
 			print (e)
 		if flag :
@@ -154,10 +164,12 @@ class Interface(cmd.Cmd) :
 		user_id = arg[1]
 		input = {"user_id":user_id}
 		input = json.dumps(input)
+		response = {}
 		try :
 			response = json.loads(requests.post(api, data = input,headers=headers).text)
+			print (response)
 		except Exception as e:
-			print (e)
+			print ("error saat merequest :",e)
 		try :
 			if response['nilai_saldo'] == -2 :
 				print ('quorum tidak terpenuhi')

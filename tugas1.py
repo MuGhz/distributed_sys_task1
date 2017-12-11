@@ -9,14 +9,19 @@ database = SqliteDatabase('bank.db')
 hostname = socket.gethostbyname(socket.gethostname())
 headers = {'Content-type': 'application/json','Accept':'application/json'}
 def get_quorum():
+	list = ['1406543662','1406569781','1406527532','1406559055','1406572025','1306464114']
 	try :
 		#response = json.loads(requests.get('http://152.118.31.2/list.php').text)
-		response = json.loads(requests.get('http://www.mocky.io/v2/59df65fa0f00001009173c3f').text)
+		response = json.loads(requests.get('http://172.17.0.59:8000/quorum.json').text)
+		print (response)
 	except Exception as e:
 		print (e)
 	quorum = []
 	for user in response :
-		quorum.append(user['ip'])
+		print (user)
+		print (user["ip"])
+		#if(user["npm"] in list):
+		quorum.append(user["ip"])
 	print (quorum)
 	n = 0
 	for ip in quorum :
@@ -47,6 +52,11 @@ def _db_connect():
 def _db_close(exc):
 	if not database.is_closed():
 		database.close()
+
+@app.route('/ewallet/quorum',methods=['POST'])
+def cek_quorum():
+	vote = get_quorum()
+	return jsonify(quorum=vote),200
 
 @app.route('/ewallet/ping',methods=['POST'])
 def ping():
@@ -130,7 +140,7 @@ def transfer():
 def get_cabang():
 	try :
                 #response = json.loads(requests.get('http://152.118.31.2/list.php').text)
-                response = json.loads(requests.get('http://www.mocky.io/v2/59df65fa0f00001009173c3f').text)
+                response = json.loads(requests.get('http://172.17.0.59:8000/quorum.json').text)
 	except Exception as e:
                 print (e)
 	cabang = {}
@@ -183,6 +193,7 @@ def getTotalSaldo():
 				api = 'http://' + cabang[bank] + '/ewallet/getSaldo'
 				post_data = {"user_id":user_id}
 				post_data = json.dumps(post_data)
+				print ("cek saldo dari :",cabang[bank])
 				try :
 					saldo = json.loads(requests.post(api,data = post_data,headers=headers).text)
 				except Exception as e: 
